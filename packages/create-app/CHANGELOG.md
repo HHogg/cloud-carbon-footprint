@@ -1,5 +1,12 @@
 # @cloud-carbon-footprint/create-app
 
+## 1.2.8
+
+### Patch Changes
+
+- 9938c9b0: refactors ccf for v1 implementation of on-premise estimations
+  Refer to [this](https://github.com/cloud-carbon-footprint/cloud-carbon-footprint/commit/b3ba4120d633a8b83bf8bc0c131855dd67e6a288) commit to update cli package templates.
+
 ## 1.2.7
 
 ### Patch Changes

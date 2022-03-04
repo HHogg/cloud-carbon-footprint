@@ -1,5 +1,21 @@
 # @cloud-carbon-footprint/aws
 
+## 0.10.0
+
+### Minor Changes
+
+- ef6af294: Adds initial support for energy/carbon estimation for GPU instances for AWS and GCP
+
+### Patch Changes
+
+- 03b43e40: Moves f1 and inf1 instances out of the GPU_INSTANCES_TYPES array, because those families don't have GPUs
+- dd2b6744: Adds check for total running queries in Lambda implementation, with a back off, to avoid hitting concurrent queriy limits
+- Updated dependencies [497ae495]
+- Updated dependencies [ef6af294]
+- Updated dependencies [9938c9b0]
+  - @cloud-carbon-footprint/core@0.16.0
+  - @cloud-carbon-footprint/common@1.5.0
+
 ## 0.9.1
 
 ### Patch Changes
