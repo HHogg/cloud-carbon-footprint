@@ -35,6 +35,12 @@ import { promises as fs } from 'fs'
 export const recommendationsMockPath = 'recommendations.mock.json'
 
 export default class App {
+  configLoader: typeof configLoader;
+
+  constructor(customConfigLoader: typeof configLoader) {
+    this.configLoader = customConfigLoader;
+  }
+
   @cache()
   async getCostAndEstimates(
     request: EstimationRequest,
@@ -42,8 +48,8 @@ export default class App {
     const startDate = request.startDate
     const endDate = request.endDate
     const grouping =
-      (request.groupBy as GroupBy) || configLoader().GROUP_QUERY_RESULTS_BY
-    const config = configLoader()
+      (request.groupBy as GroupBy) || this.configLoader().GROUP_QUERY_RESULTS_BY
+    const config = this.configLoader()
     const AWS = config.AWS
     const GCP = config.GCP
     const AZURE = config.AZURE
@@ -158,7 +164,7 @@ export default class App {
       )
       return JSON.parse(recommendationsMock)
     }
-    const config = configLoader()
+    const config = this.configLoader()
     const AWS = config.AWS
     const GCP = config.GCP
     const recommendations: RecommendationResult[][] = []

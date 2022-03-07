@@ -13,6 +13,7 @@ import {
 } from '@cloud-carbon-footprint/app'
 
 import {
+  configLoader,
   EstimationRequestValidationError,
   Logger,
   PartialDataError,
@@ -28,7 +29,7 @@ const apiLogger = new Logger('api')
  * start - Required, UTC start date in format YYYY-MM-DD
  * end - Required, UTC start date in format YYYY-MM-DD
  */
-const FootprintApiMiddleware = async function (
+const FootprintApiMiddleware = (customConfigLoader?: typeof configLoader) => async function (
   req: express.Request,
   res: express.Response,
 ): Promise<void> {
@@ -47,7 +48,7 @@ const FootprintApiMiddleware = async function (
     apiLogger.warn(
       'GroupBy parameter not specified. This will be required in the future.',
     )
-  const footprintApp = new App()
+  const footprintApp = new App(customConfigLoader)
   try {
     const estimationRequest = CreateValidFootprintRequest(rawRequest)
     const estimationResults = await footprintApp.getCostAndEstimates(
@@ -69,12 +70,12 @@ const FootprintApiMiddleware = async function (
   }
 }
 
-const EmissionsApiMiddleware = async function (
+const EmissionsApiMiddleware = (customConfigLoader?: typeof configLoader) => async function (
   req: express.Request,
   res: express.Response,
 ): Promise<void> {
   apiLogger.info(`Regions emissions factors API request started`)
-  const footprintApp = new App()
+  const footprintApp = new App(customConfigLoader)
   try {
     const emissionsResults = await footprintApp.getEmissionsFactors()
     res.json(emissionsResults)
@@ -84,7 +85,7 @@ const EmissionsApiMiddleware = async function (
   }
 }
 
-const RecommendationsApiMiddleware = async function (
+const RecommendationsApiMiddleware = (customConfigLoader?: typeof configLoader) => async function (
   req: express.Request,
   res: express.Response,
 ): Promise<void> {
@@ -92,7 +93,7 @@ const RecommendationsApiMiddleware = async function (
     awsRecommendationTarget: req.query.awsRecommendationTarget?.toString(),
   }
   apiLogger.info(`Recommendations API request started`)
-  const footprintApp = new App()
+  const footprintApp = new App(customConfigLoader)
   try {
     const estimationRequest = CreateValidRecommendationsRequest(rawRequest)
     const recommendations = await footprintApp.getRecommendations(
@@ -112,12 +113,15 @@ const RecommendationsApiMiddleware = async function (
   }
 }
 
-const router = express.Router()
+const createRouter = (customConfigLoader?: typeof configLoader) => {
+  const router = express.Router()
+  
+  router.get('/footprint', FootprintApiMiddleware(customConfigLoader))
+  router.get('/regions/emissions-factors', EmissionsApiMiddleware(customConfigLoader))
+  router.get('/recommendations', RecommendationsApiMiddleware(customConfigLoader))
+  router.get('/healthz', (req: express.Request, res: express.Response) => {
+    res.status(200).send('OK')
+  })
+};
 
-router.get('/footprint', FootprintApiMiddleware)
-router.get('/regions/emissions-factors', EmissionsApiMiddleware)
-router.get('/recommendations', RecommendationsApiMiddleware)
-router.get('/healthz', (req: express.Request, res: express.Response) => {
-  res.status(200).send('OK')
-})
-export default router
+export default createRouter
